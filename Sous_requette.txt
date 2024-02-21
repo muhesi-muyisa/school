@@ -1,0 +1,26 @@
+SELECT COUNT(caisse_depenses.id_depense), caisse_depenses.id_annee_scol, 
+caisse_depenses.id_annee_scol,
+caisse_depenses.id_mois,
+caisse_depenses.id_categ_frais,
+SUM(caisse_depenses.montant_depense)
+FROM caisse_depenses
+WHERE EXISTS (SELECT COUNT(caisse_recette.id_payement_frais),
+             caisse_recette.id_annee_scol,
+             caisse_recette.id_mois,
+             caisse_recette.id_categ_frais,
+             SUM(caisse_recette.montant_paye)
+             FROM caisse_recette
+             WHERE caisse_depenses.id_annee_scol=caisse_recette.id_annee_scol
+             AND caisse_recette.id_mois=caisse_depenses.id_mois
+             AND caisse_recette.id_categ_frais=caisse_depenses.id_categ_frais GROUP BY id_payement_frais) GROUP BY id_depense
+
+
+
+SELECT caisse_depenses.id_annee_scol,caisse_depenses.description_annee,caisse_depenses.id_mois,caisse_depenses.description_mois,
+SUM(caisse_depenses.montant_depense) as SommeD
+FROM caisse_depenses 
+WHERE EXISTS(
+   SELECT caisse_recette.id_annee_scol,caisse_recette.description_annee,caisse_recette.id_mois,caisse_recette.description_mois,SUM(caisse_recette.montant_paye) as SommeR
+     FROM caisse_recette
+     WHERE caisse_depenses.id_annee_scol=caisse_recette.id_annee_scol AND
+    caisse_recette.id_mois=caisse_depenses.id_mois)  GROUP BY id_annee_scol,id_mois
